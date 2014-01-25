@@ -1003,7 +1003,7 @@ end
 if writeYes && ~isempty(writeNames)
     
     
-    outputFile = [Folder '/' LakeName '_results.txt'];
+    outputFile = [Folder '/' LakeName '_results.csv'];
     outFile = fopen(outputFile,'w');
     if eq(outFile,-1)
         error([Folder '/' LakeName '_results.csv file in use, please close']);
@@ -1029,7 +1029,7 @@ if writeYes && ~isempty(writeNames)
 end
  %---- write water to separate file ----
 if TT.wrt_wTemp && writeYes
-    outputFile = [Folder '/' LakeName '_results_wtr.txt'];
+    outputFile = [Folder '/' LakeName '_results_wtr.csv'];
     outFile = fopen(outputFile,'w');
     if eq(outFile,-1)
         error([Folder '/' LakeName '_results_wtr.csv file in use, please close']);
