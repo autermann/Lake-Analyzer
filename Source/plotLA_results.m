@@ -1,5 +1,5 @@
 function ...
-    plotLA_results(writeTable,plotTable,dates,LakeName,Year,wTemp,depthAry)
+    plotLA_results(writeTable,plotTable,dates,outputFileNames,wTemp,depthAry)
 
 fNms = fieldnames(writeTable);
 
@@ -31,7 +31,7 @@ for k = 1:length(fNms)
         plot(dates,writeTable.(char(fNms{k})),'k','Parent',gca);datetick
         set(gca,'XLim',[min(dates) max(dates)]);
         print(plotTable.PrintD.format,plotTable.PrintD.res,...
-            [Year '/' LakeName '_' char(fNms{k})])
+            outputFileNames.([char(fNms{k}) 'Fig']))
         if plotTable.PrintD.toClose
             close
         end
@@ -66,7 +66,7 @@ if writeTable.wTemp
         'FontSize',plotTable.(char(fNms{k})).FontSize);
     set(gca,'XLim',[min(dates) max(dates)]);
     print(plotTable.PrintD.format,plotTable.PrintD.res,...
-            [Year '/' LakeName '_wTemp'])
+        outputFileNames.wTempFig)
     if plotTable.PrintD.toClose
         close
     end
