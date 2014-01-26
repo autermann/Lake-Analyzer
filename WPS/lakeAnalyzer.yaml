@@ -1,0 +1,338 @@
+---
+connection:
+  host: localhost
+  port: 7000
+#connection: file:///home/auti/Source/Lake-Analyzer/Source
+identifier: org.gleon.LakeAnalyzer
+version: 1.0.0
+title: Lake Analyzer
+abstract: Lake Analyzer
+function: Run_LA_WPS
+inputs:
+  # input files
+  - identifier: bathymetry
+    title: Bathymetry
+    abstract: >
+      A bathymetry file is a comma delimited (after ver. 3.5, tab delimited)
+      text file with extension of [.bth]. The file starts from one line header
+      and followed by the hypsographic data at each depth (Example 2.1). Depths
+      must start from zero (i.e. surface) with a unit of meters, and
+      hypsographic curve data with area as square meters is followed by comma
+      delimiter. If the hypsographic curve is not concluded with zero at the
+      bottom, LakeAnalyzer program automatically assigns zero to the bottom
+      depth which was defined during the configuration process (see section 3).
+      LakeAnalyzer linearly interpolates the given hypsographic curve. Change
+      to the hypsographic curve due to surface elevation change is not supported
+      by the current version of the LakeAnalyzer.
+    type: { mimeType: text/csv }
+  - identifier: waterLevel
+    title: Water Level
+    abstract: >
+      The Water Level file is a tab delimited text file with the file extension
+      of [.lvl]. Water level input is optional for all the outputs. It is useful
+      for estuaries and lake with significant level changes which affect
+      hypsographic curve of the water body. If the program locates the water
+      level file in the correct directory with correct file name, the effect of
+      water level fluctuation to the bathymetry area are calculated when
+      calculating stabilities. The water level file contains one header
+      [DateTime level(positive Z down)]. From the second line, date/time
+      information with the format of [yyyy-mm-dd HH:MM], and water level from
+      the highest elevation area measurement available (original depth is the
+      surface level stated in the *.bth file) should be described. Level depths
+      must be equal or greater than 0.
+    type: { mimeType: text/csv }
+  - identifier: windSpeed
+    title: Wind Speed
+    abstract: >
+      The wind speed file is a tab delimitated text file with extension of
+      [.wnd]. Wind speed data are used for uStar, Lake Number, and Wedderburn
+      Number calculations. Time scale and resolution of the wind speed must
+      match the water temperature inputs. The file starts from one line header
+      [dateTime windSpeed]. From the second line, date/time information with
+      the format of [yyyy-mm-dd HH:MM], and wind speed data in m/s should be
+      described.
+    type: { mimeType: text/csv }
+  - identifier: waterTemperature
+    title: Water Temperature
+    abstract: >
+      The water temperature file is a tab delimitated text file with a file
+      extension of [.wtr]. The file should contain one header which starts from
+      DateTime, followed by individual thermister depths in meters with format
+      of [temp5] (see Example 2.2). LakeAnalyzer uses header information to
+      acquire thermister depth. Temperature data should be inserted from the
+      following line. The data starts from the date/time inputs, which should
+      be formatted as [yyyy-mm-dd HH:MM].
+    type: { mimeType: text/csv }
+  - identifier: salinity
+    title: Salinity
+    abstract: >
+      The salinity file is a tab delimitated text file with the file extension
+      of [.sal]. Salinity input is optional for all the outputs. If the program
+      locates the salinity file in the correct directory, the effect of salinity
+      on the density is calculated during the process. Salinity time can be
+      independent to the other input files. The salinity file contains one
+      header line starting from DateTime, and followed by depths of measurements
+      in format of [salinity2.0]. The second line is the beginning of the actual
+      data inputs, starting from date/time in format [yyyy-mm-dd HH:MM]. After
+      tab separation, salinity should be indicated Practical Salinity Scale
+      (PSS) units.
+    type: { mimeType: text/csv }
+    minOccurs: 0
+  # .lke file contents
+  - identifier: outputResolution
+    title: Output Resolution
+    abstract: >
+      Output resolution specifies the time-step (s) of the calculations made for
+      Lake Analyzer. If the temporal resolution of the input data is coarser than
+      the entry for this input, calculations will be made according to input data
+      resolution.
+    type: int
+    unit: s
+  - identifier: totalDepth
+    title: Total Depth
+    abstract: >
+      Total depth (m) must be greater or equal to than the maximum depth given
+      in the .bth file. If the total depth is not included in the .bth file, it
+      is assumed that the area at total depth is 0 (m2) and the depth area curve
+      is linearly interpolated from this depth to the values in the .bth file.
+    type: double
+    unit: m
+  - identifier: windHeight
+    title: Wind Height
+    abstract: >
+      Height from surface for wind measurement (m). Height of wind measurement
+      is used for the wind speed correction factor in Eqn 11.
+    type: double
+    unit: m
+  - identifier: windAveraging
+    title: Wind Averaging
+    abstract: >
+      Wind averaging (s) is the backwards-looking smoothing window used for the
+      calculation of uSt and SuSt. This calculation allows for the relevant wind
+      duration to influence the calculation of wind-derived parameters.
+    type: int
+    unit: s
+  - identifier: layerAveraging
+    title: Layer Averaging
+    abstract: >
+      Thermal averaging (s) is the smoothing window used for metaT, metaB,
+      thermD, SmetaT, SmetaB, and SthermD. Temporal smoothing for thermal layers
+      is intended to minimize the effects of internal waves on these parameters.
+    type: int
+    unit: s
+  - identifier: outlierWindow
+    title: Outlier Window
+    abstract: >
+      Outlier window (s) is the window size (seconds) for outlier removal, where
+      measurements outside of the bounds ( μ ± 2.5 ⋅ σ ) based on the standard
+      deviation and the mean inside the outlier window are removed. Outlier
+      removal is performed on .wtr and .wnd files prior to down-sampling (if
+      applicable).
+    type: int
+    unit: s
+  - identifier: maxWaterTemp
+    title: Maximum Water Temperature
+    abstract: >
+      Maximum allowed water temperature (°C), where all values of .wtr file not
+      fitting this criteria are removed before outlier checking.
+    type: double
+    unit: °C
+    minOccurs: 0
+  - identifier: minWaterTemp
+    title: Minimum Water Temperature
+    abstract: >
+      Minimum allowed water temperature (°C), where all values of .wtr file not
+      fitting this criteria are removed before outlier checking.
+    type: double
+    unit: °C
+    minOccurs: 0
+  - identifier: maxWindSpeed
+    title: Maximum Wind Speed
+    abstract: >
+      Maximum allowed wind speed (m/s), where all values of .wnd file not
+      fitting this criteria are removed before outlier checking.
+    type: double
+    unit: m/s
+    minOccurs: 0
+  - identifier: minWindSpeed
+    title: Minimum Wind Speed
+    abstract: >
+      Minimum allowed wind speed (m/s), where all values of .wnd file not
+      fitting this criteria are removed before outlier checking.
+    type: double
+    unit: m/s
+    minOccurs: 0
+  - identifier: metaMinSlope
+    title: Minimum Metalimnion slope
+    abstract: >
+      Minimum slope for the range of the metalimnion (kg m-3 per meter), which
+      is used to calculated values of metaT, metaB, SmetaT, and SmetaB according
+      to Eqn 2.
+    type: double
+    unit: (kg/m^(-3))/m
+  - identifier: mixedTempDifferential
+    title: Mixed Temperature Differential
+    abstract: >
+      Minimum surface to bottom thermistor temperature differential (°C) before
+      the case of ‘mixed’ is applied. When ‘mixed’ is true, all thermal layer
+      calculations are no longer applicable, and values are given as the depth
+      of the bottom thermistor.
+    type: double
+    unit: °C
+  # .plt file contents
+  - identifier: figRes
+    abstract: Resolution of the figure in dots per inch
+    title: Plot Resolution
+    type: int
+    values: [ 50, 100, 200, 300, 400, 500 ]
+    unit: dpi
+  - identifier: figUnits
+    title: Figure Units
+    abstract: Units of measure for figure size
+    type: string
+    values: [ inches, centimeters, points ]
+  - identifier: figWidth
+    title: Figure Width
+    abstract: Width of figure (relative to figUnits)
+    type: double
+  - identifier: figHeight
+    title: Figure Height
+    abstract: Height of figure (relative to figUnits)
+    type: double
+  - identifier: leftMargin
+    title: Left Margin
+    abstract: Space between left edge of figure and y-axis (relative to figUnits)
+    type: double
+  - identifier: rightMargin
+    title: Right Margin
+    abstract: Space between right edge of figure and right axis
+    type: double
+  - identifier: topMargin
+    title: Top Margin
+    abstract: Space between the top edge of the figure and the top of the plot axis
+    type: double
+  - identifier: botMargin
+    title: Bottom Margin
+    abstract: Space between the bottom edge of the figure and the bottom of the plot x-axis
+    type: double
+  - identifier: fontName
+    title: Font Name
+    abstract: Font name for plot text
+    type: string
+    values: [ Arial, Times New Roman, Helvetica ]
+  - identifier: fontSize
+    title: Font Size
+    abstract: Font sive for plot text
+    type: int
+    values: [ 8, 9, 10, 11, 12, 14 ]
+  - identifier: heatMapMin
+    title: Minimum Heat Map Value
+    abstract: Value that represents the minimum heatmap color
+    type: double
+  - identifier: heatMapMax
+    title: Maximum Heat Map Value
+    abstract: Value that represents the maximum heatmap color
+    type: double
+outputs:
+  - identifier: results
+    title: Raw Results
+    type: { mimeType: text/csv }
+  - identifier: results_wtr
+    title: Raw Results
+    type: { mimeType: text/csv }
+  - identifier: N2
+    title: Buoyancy frequency
+    type:
+      mimeType: image/png
+      encoding: Base64
+  - identifier: SN2
+    title: Parent buoyancy frequency
+    type:
+      mimeType: image/png
+      encoding: Base64
+  - identifier: Ln
+    title: Lake number
+    type:
+      mimeType: image/png
+      encoding: Base64
+  - identifier: SLn
+    title: Parent lake number
+    type:
+      mimeType: image/png
+      encoding: Base64
+  - identifier: metaB
+    title: Metalimnion bottom depth
+    type:
+      mimeType: image/png
+      encoding: Base64
+  - identifier: SmetaB
+    title: Parent metalimnion bottom depth
+    type:
+      mimeType: image/png
+      encoding: Base64
+  - identifier: metaT
+    title: Metalimnion top depth
+    type:
+      mimeType: image/png
+      encoding: Base64
+  - identifier: SmetaT
+    title: Parent metalimnion top depth
+    type:
+      mimeType: image/png
+      encoding: Base64
+  - identifier: T1
+    title: Mode one vertical seiche period
+    type:
+      mimeType: image/png
+      encoding: Base64
+  - identifier: ST1
+    title: Parent mode one vertical seiche period
+    type:
+      mimeType: image/png
+      encoding: Base64
+  - identifier: St
+    title: Schmidt stability
+    type:
+      mimeType: image/png
+      encoding: Base64
+  - identifier: thermD
+    title: Thermocline depth
+    type:
+      mimeType: image/png
+      encoding: Base64
+  - identifier: SthermD
+    title: Parent thermocline depth
+    type:
+      mimeType: image/png
+      encoding: Base64
+  - identifier: uSt
+    title: u star (turblent velocity scale from wind)
+    type:
+      mimeType: image/png
+      encoding: Base64
+  - identifier: SuSt
+    title: Parent u star (turblent velocity scale from wind)
+    type:
+      mimeType: image/png
+      encoding: Base64
+  - identifier: wTemp
+    title: Water temperature
+    type:
+      mimeType: image/png
+      encoding: Base64
+  - identifier: W
+    title: Wedderburn number
+    type:
+      mimeType: image/png
+      encoding: Base64
+  - identifier: SW
+    title: Parent Wedderburn number
+    type:
+      mimeType: image/png
+      encoding: Base64
+  - identifier: wndSpd
+    title: Wind speed
+    type:
+      mimeType: image/png
+      encoding: Base64
+...

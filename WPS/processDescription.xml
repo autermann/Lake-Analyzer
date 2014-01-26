@@ -1,0 +1,813 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wps:ProcessDescriptions xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ows="http://www.opengis.net/ows/1.1" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsDescribeProcess_response.xsd" xml:lang="en-US" service="WPS" version="1.0.0">
+  <ProcessDescription statusSupported="false" storeSupported="true" wps:processVersion="1.0.0">
+    <ows:Identifier>org.gleon.LakeAnalyzer</ows:Identifier>
+    <ows:Title>Lake Analyzer</ows:Title>
+    <ows:Abstract>Lake Analyzer</ows:Abstract>
+    <DataInputs>
+      <Input minOccurs="1" maxOccurs="1">
+        <ows:Identifier>bathymetry</ows:Identifier>
+        <ows:Title>Bathymetry</ows:Title>
+        <ows:Abstract>A bathymetry file is a comma delimited (after ver. 3.5, tab delimited) text file with extension of [.bth]. The file starts from one line header and followed by the hypsographic data at each depth (Example 2.1). Depths must start from zero (i.e. surface) with a unit of meters, and hypsographic curve data with area as square meters is followed by comma delimiter. If the hypsographic curve is not concluded with zero at the bottom, LakeAnalyzer program automatically assigns zero to the bottom depth which was defined during the configuration process (see section 3). LakeAnalyzer linearly interpolates the given hypsographic curve. Change to the hypsographic curve due to surface elevation change is not supported by the current version of the LakeAnalyzer.</ows:Abstract>
+        <ComplexData>
+          <Default>
+            <Format>
+              <MimeType>text/csv</MimeType>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>text/csv</MimeType>
+            </Format>
+          </Supported>
+        </ComplexData>
+      </Input>
+      <Input minOccurs="1" maxOccurs="1">
+        <ows:Identifier>waterLevel</ows:Identifier>
+        <ows:Title>Water Level</ows:Title>
+        <ows:Abstract>The Water Level file is a tab delimited text file with the file extension of [.lvl]. Water level input is optional for all the outputs. It is useful for estuaries and lake with significant level changes which affect hypsographic curve of the water body. If the program locates the water level file in the correct directory with correct file name, the effect of water level fluctuation to the bathymetry area are calculated when calculating stabilities. The water level file contains one header [DateTime level(positive Z down)]. From the second line, date/time information with the format of [yyyy-mm-dd HH:MM], and water level from the highest elevation area measurement available (original depth is the surface level stated in the *.bth file) should be described. Level depths must be equal or greater than 0.</ows:Abstract>
+        <ComplexData>
+          <Default>
+            <Format>
+              <MimeType>text/csv</MimeType>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>text/csv</MimeType>
+            </Format>
+          </Supported>
+        </ComplexData>
+      </Input>
+      <Input minOccurs="1" maxOccurs="1">
+        <ows:Identifier>windSpeed</ows:Identifier>
+        <ows:Title>Wind Speed</ows:Title>
+        <ows:Abstract>The wind speed file is a tab delimitated text file with extension of [.wnd]. Wind speed data are used for uStar, Lake Number, and Wedderburn Number calculations. Time scale and resolution of the wind speed must match the water temperature inputs. The file starts from one line header [dateTime windSpeed]. From the second line, date/time information with the format of [yyyy-mm-dd HH:MM], and wind speed data in m/s should be described.</ows:Abstract>
+        <ComplexData>
+          <Default>
+            <Format>
+              <MimeType>text/csv</MimeType>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>text/csv</MimeType>
+            </Format>
+          </Supported>
+        </ComplexData>
+      </Input>
+      <Input minOccurs="1" maxOccurs="1">
+        <ows:Identifier>waterTemperature</ows:Identifier>
+        <ows:Title>Water Temperature</ows:Title>
+        <ows:Abstract>The water temperature file is a tab delimitated text file with a file extension of [.wtr]. The file should contain one header which starts from DateTime, followed by individual thermister depths in meters with format of [temp5] (see Example 2.2). LakeAnalyzer uses header information to acquire thermister depth. Temperature data should be inserted from the following line. The data starts from the date/time inputs, which should be formatted as [yyyy-mm-dd HH:MM].</ows:Abstract>
+        <ComplexData>
+          <Default>
+            <Format>
+              <MimeType>text/csv</MimeType>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>text/csv</MimeType>
+            </Format>
+          </Supported>
+        </ComplexData>
+      </Input>
+      <Input minOccurs="0" maxOccurs="1">
+        <ows:Identifier>salinity</ows:Identifier>
+        <ows:Title>Salinity</ows:Title>
+        <ows:Abstract>The salinity file is a tab delimitated text file with the file extension of [.sal]. Salinity input is optional for all the outputs. If the program locates the salinity file in the correct directory, the effect of salinity on the density is calculated during the process. Salinity time can be independent to the other input files. The salinity file contains one header line starting from DateTime, and followed by depths of measurements in format of [salinity2.0]. The second line is the beginning of the actual data inputs, starting from date/time in format [yyyy-mm-dd HH:MM]. After tab separation, salinity should be indicated Practical Salinity Scale (PSS) units.</ows:Abstract>
+        <ComplexData>
+          <Default>
+            <Format>
+              <MimeType>text/csv</MimeType>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>text/csv</MimeType>
+            </Format>
+          </Supported>
+        </ComplexData>
+      </Input>
+      <Input minOccurs="1" maxOccurs="1">
+        <ows:Identifier>outputResolution</ows:Identifier>
+        <ows:Title>Output Resolution</ows:Title>
+        <ows:Abstract>Output resolution specifies the time-step (s) of the calculations made for Lake Analyzer. If the temporal resolution of the input data is coarser than the entry for this input, calculations will be made according to input data resolution.</ows:Abstract>
+        <LiteralData>
+          <ows:DataType ows:reference="xs:int"/>
+          <UOMs>
+            <Default>
+              <ows:UOM>s</ows:UOM>
+            </Default>
+            <Supported>
+              <ows:UOM>s</ows:UOM>
+            </Supported>
+          </UOMs>
+          <ows:AnyValue/>
+        </LiteralData>
+      </Input>
+      <Input minOccurs="1" maxOccurs="1">
+        <ows:Identifier>totalDepth</ows:Identifier>
+        <ows:Title>Total Depth</ows:Title>
+        <ows:Abstract>Total depth (m) must be greater or equal to than the maximum depth given in the .bth file. If the total depth is not included in the .bth file, it is assumed that the area at total depth is 0 (m2) and the depth area curve is linearly interpolated from this depth to the values in the .bth file.</ows:Abstract>
+        <LiteralData>
+          <ows:DataType ows:reference="xs:double"/>
+          <UOMs>
+            <Default>
+              <ows:UOM>m</ows:UOM>
+            </Default>
+            <Supported>
+              <ows:UOM>m</ows:UOM>
+            </Supported>
+          </UOMs>
+          <ows:AnyValue/>
+        </LiteralData>
+      </Input>
+      <Input minOccurs="1" maxOccurs="1">
+        <ows:Identifier>windHeight</ows:Identifier>
+        <ows:Title>Wind Height</ows:Title>
+        <ows:Abstract>Height from surface for wind measurement (m). Height of wind measurement is used for the wind speed correction factor in Eqn 11.</ows:Abstract>
+        <LiteralData>
+          <ows:DataType ows:reference="xs:double"/>
+          <UOMs>
+            <Default>
+              <ows:UOM>m</ows:UOM>
+            </Default>
+            <Supported>
+              <ows:UOM>m</ows:UOM>
+            </Supported>
+          </UOMs>
+          <ows:AnyValue/>
+        </LiteralData>
+      </Input>
+      <Input minOccurs="1" maxOccurs="1">
+        <ows:Identifier>windAveraging</ows:Identifier>
+        <ows:Title>Wind Averaging</ows:Title>
+        <ows:Abstract>Wind averaging (s) is the backwards-looking smoothing window used for the calculation of uSt and SuSt. This calculation allows for the relevant wind duration to influence the calculation of wind-derived parameters.</ows:Abstract>
+        <LiteralData>
+          <ows:DataType ows:reference="xs:int"/>
+          <UOMs>
+            <Default>
+              <ows:UOM>s</ows:UOM>
+            </Default>
+            <Supported>
+              <ows:UOM>s</ows:UOM>
+            </Supported>
+          </UOMs>
+          <ows:AnyValue/>
+        </LiteralData>
+      </Input>
+      <Input minOccurs="1" maxOccurs="1">
+        <ows:Identifier>layerAveraging</ows:Identifier>
+        <ows:Title>Layer Averaging</ows:Title>
+        <ows:Abstract>Thermal averaging (s) is the smoothing window used for metaT, metaB, thermD, SmetaT, SmetaB, and SthermD. Temporal smoothing for thermal layers is intended to minimize the effects of internal waves on these parameters.</ows:Abstract>
+        <LiteralData>
+          <ows:DataType ows:reference="xs:int"/>
+          <UOMs>
+            <Default>
+              <ows:UOM>s</ows:UOM>
+            </Default>
+            <Supported>
+              <ows:UOM>s</ows:UOM>
+            </Supported>
+          </UOMs>
+          <ows:AnyValue/>
+        </LiteralData>
+      </Input>
+      <Input minOccurs="1" maxOccurs="1">
+        <ows:Identifier>outlierWindow</ows:Identifier>
+        <ows:Title>Outlier Window</ows:Title>
+        <ows:Abstract>Outlier window (s) is the window size (seconds) for outlier removal, where measurements outside of the bounds ( μ ± 2.5 ⋅ σ ) based on the standard deviation and the mean inside the outlier window are removed. Outlier removal is performed on .wtr and .wnd files prior to down-sampling (if applicable).</ows:Abstract>
+        <LiteralData>
+          <ows:DataType ows:reference="xs:int"/>
+          <UOMs>
+            <Default>
+              <ows:UOM>s</ows:UOM>
+            </Default>
+            <Supported>
+              <ows:UOM>s</ows:UOM>
+            </Supported>
+          </UOMs>
+          <ows:AnyValue/>
+        </LiteralData>
+      </Input>
+      <Input minOccurs="0" maxOccurs="1">
+        <ows:Identifier>maxWaterTemp</ows:Identifier>
+        <ows:Title>Maximum Water Temperature</ows:Title>
+        <ows:Abstract>Maximum allowed water temperature (°C), where all values of .wtr file not fitting this criteria are removed before outlier checking.</ows:Abstract>
+        <LiteralData>
+          <ows:DataType ows:reference="xs:double"/>
+          <UOMs>
+            <Default>
+              <ows:UOM>°C</ows:UOM>
+            </Default>
+            <Supported>
+              <ows:UOM>°C</ows:UOM>
+            </Supported>
+          </UOMs>
+          <ows:AnyValue/>
+        </LiteralData>
+      </Input>
+      <Input minOccurs="0" maxOccurs="1">
+        <ows:Identifier>minWaterTemp</ows:Identifier>
+        <ows:Title>Minimum Water Temperature</ows:Title>
+        <ows:Abstract>Minimum allowed water temperature (°C), where all values of .wtr file not fitting this criteria are removed before outlier checking.</ows:Abstract>
+        <LiteralData>
+          <ows:DataType ows:reference="xs:double"/>
+          <UOMs>
+            <Default>
+              <ows:UOM>°C</ows:UOM>
+            </Default>
+            <Supported>
+              <ows:UOM>°C</ows:UOM>
+            </Supported>
+          </UOMs>
+          <ows:AnyValue/>
+        </LiteralData>
+      </Input>
+      <Input minOccurs="0" maxOccurs="1">
+        <ows:Identifier>maxWindSpeed</ows:Identifier>
+        <ows:Title>Maximum Wind Speed</ows:Title>
+        <ows:Abstract>Maximum allowed wind speed (m/s), where all values of .wnd file not fitting this criteria are removed before outlier checking.</ows:Abstract>
+        <LiteralData>
+          <ows:DataType ows:reference="xs:double"/>
+          <UOMs>
+            <Default>
+              <ows:UOM>m/s</ows:UOM>
+            </Default>
+            <Supported>
+              <ows:UOM>m/s</ows:UOM>
+            </Supported>
+          </UOMs>
+          <ows:AnyValue/>
+        </LiteralData>
+      </Input>
+      <Input minOccurs="0" maxOccurs="1">
+        <ows:Identifier>minWindSpeed</ows:Identifier>
+        <ows:Title>Minimum Wind Speed</ows:Title>
+        <ows:Abstract>Minimum allowed wind speed (m/s), where all values of .wnd file not fitting this criteria are removed before outlier checking.</ows:Abstract>
+        <LiteralData>
+          <ows:DataType ows:reference="xs:double"/>
+          <UOMs>
+            <Default>
+              <ows:UOM>m/s</ows:UOM>
+            </Default>
+            <Supported>
+              <ows:UOM>m/s</ows:UOM>
+            </Supported>
+          </UOMs>
+          <ows:AnyValue/>
+        </LiteralData>
+      </Input>
+      <Input minOccurs="1" maxOccurs="1">
+        <ows:Identifier>metaMinSlope</ows:Identifier>
+        <ows:Title>Minimum Metalimnion slope</ows:Title>
+        <ows:Abstract>Minimum slope for the range of the metalimnion (kg m-3 per meter), which is used to calculated values of metaT, metaB, SmetaT, and SmetaB according to Eqn 2.</ows:Abstract>
+        <LiteralData>
+          <ows:DataType ows:reference="xs:double"/>
+          <UOMs>
+            <Default>
+              <ows:UOM>(kg/m^(-3))/m</ows:UOM>
+            </Default>
+            <Supported>
+              <ows:UOM>(kg/m^(-3))/m</ows:UOM>
+            </Supported>
+          </UOMs>
+          <ows:AnyValue/>
+        </LiteralData>
+      </Input>
+      <Input minOccurs="1" maxOccurs="1">
+        <ows:Identifier>mixedTempDifferential</ows:Identifier>
+        <ows:Title>Mixed Temperature Differential</ows:Title>
+        <ows:Abstract>Minimum surface to bottom thermistor temperature differential (°C) before the case of ‘mixed’ is applied. When ‘mixed’ is true, all thermal layer calculations are no longer applicable, and values are given as the depth of the bottom thermistor.</ows:Abstract>
+        <LiteralData>
+          <ows:DataType ows:reference="xs:double"/>
+          <UOMs>
+            <Default>
+              <ows:UOM>°C</ows:UOM>
+            </Default>
+            <Supported>
+              <ows:UOM>°C</ows:UOM>
+            </Supported>
+          </UOMs>
+          <ows:AnyValue/>
+        </LiteralData>
+      </Input>
+      <Input minOccurs="1" maxOccurs="1">
+        <ows:Identifier>figRes</ows:Identifier>
+        <ows:Title>Plot Resolution</ows:Title>
+        <ows:Abstract>Resolution of the figure in dots per inch</ows:Abstract>
+        <LiteralData>
+          <ows:DataType ows:reference="xs:int"/>
+          <UOMs>
+            <Default>
+              <ows:UOM>dpi</ows:UOM>
+            </Default>
+            <Supported>
+              <ows:UOM>dpi</ows:UOM>
+            </Supported>
+          </UOMs>
+          <ows:AllowedValues>
+            <ows:Value>50</ows:Value>
+            <ows:Value>100</ows:Value>
+            <ows:Value>200</ows:Value>
+            <ows:Value>300</ows:Value>
+            <ows:Value>400</ows:Value>
+            <ows:Value>500</ows:Value>
+          </ows:AllowedValues>
+        </LiteralData>
+      </Input>
+      <Input minOccurs="1" maxOccurs="1">
+        <ows:Identifier>figUnits</ows:Identifier>
+        <ows:Title>Figure Units</ows:Title>
+        <ows:Abstract>Units of measure for figure size</ows:Abstract>
+        <LiteralData>
+          <ows:DataType ows:reference="xs:string"/>
+          <ows:AllowedValues>
+            <ows:Value>inches</ows:Value>
+            <ows:Value>centimeters</ows:Value>
+            <ows:Value>points</ows:Value>
+          </ows:AllowedValues>
+        </LiteralData>
+      </Input>
+      <Input minOccurs="1" maxOccurs="1">
+        <ows:Identifier>figWidth</ows:Identifier>
+        <ows:Title>Figure Width</ows:Title>
+        <ows:Abstract>Width of figure (relative to figUnits)</ows:Abstract>
+        <LiteralData>
+          <ows:DataType ows:reference="xs:double"/>
+          <ows:AnyValue/>
+        </LiteralData>
+      </Input>
+      <Input minOccurs="1" maxOccurs="1">
+        <ows:Identifier>figHeight</ows:Identifier>
+        <ows:Title>Figure Height</ows:Title>
+        <ows:Abstract>Height of figure (relative to figUnits)</ows:Abstract>
+        <LiteralData>
+          <ows:DataType ows:reference="xs:double"/>
+          <ows:AnyValue/>
+        </LiteralData>
+      </Input>
+      <Input minOccurs="1" maxOccurs="1">
+        <ows:Identifier>leftMargin</ows:Identifier>
+        <ows:Title>Left Margin</ows:Title>
+        <ows:Abstract>Space between left edge of figure and y-axis (relative to figUnits)</ows:Abstract>
+        <LiteralData>
+          <ows:DataType ows:reference="xs:double"/>
+          <ows:AnyValue/>
+        </LiteralData>
+      </Input>
+      <Input minOccurs="1" maxOccurs="1">
+        <ows:Identifier>rightMargin</ows:Identifier>
+        <ows:Title>Right Margin</ows:Title>
+        <ows:Abstract>Space between right edge of figure and right axis</ows:Abstract>
+        <LiteralData>
+          <ows:DataType ows:reference="xs:double"/>
+          <ows:AnyValue/>
+        </LiteralData>
+      </Input>
+      <Input minOccurs="1" maxOccurs="1">
+        <ows:Identifier>topMargin</ows:Identifier>
+        <ows:Title>Top Margin</ows:Title>
+        <ows:Abstract>Space between the top edge of the figure and the top of the plot axis</ows:Abstract>
+        <LiteralData>
+          <ows:DataType ows:reference="xs:double"/>
+          <ows:AnyValue/>
+        </LiteralData>
+      </Input>
+      <Input minOccurs="1" maxOccurs="1">
+        <ows:Identifier>botMargin</ows:Identifier>
+        <ows:Title>Bottom Margin</ows:Title>
+        <ows:Abstract>Space between the bottom edge of the figure and the bottom of the plot x-axis</ows:Abstract>
+        <LiteralData>
+          <ows:DataType ows:reference="xs:double"/>
+          <ows:AnyValue/>
+        </LiteralData>
+      </Input>
+      <Input minOccurs="1" maxOccurs="1">
+        <ows:Identifier>fontName</ows:Identifier>
+        <ows:Title>Font Name</ows:Title>
+        <ows:Abstract>Font name for plot text</ows:Abstract>
+        <LiteralData>
+          <ows:DataType ows:reference="xs:string"/>
+          <ows:AllowedValues>
+            <ows:Value>Arial</ows:Value>
+            <ows:Value>Times New Roman</ows:Value>
+            <ows:Value>Helvetica</ows:Value>
+          </ows:AllowedValues>
+        </LiteralData>
+      </Input>
+      <Input minOccurs="1" maxOccurs="1">
+        <ows:Identifier>fontSize</ows:Identifier>
+        <ows:Title>Font Size</ows:Title>
+        <ows:Abstract>Font sive for plot text</ows:Abstract>
+        <LiteralData>
+          <ows:DataType ows:reference="xs:int"/>
+          <ows:AllowedValues>
+            <ows:Value>8</ows:Value>
+            <ows:Value>9</ows:Value>
+            <ows:Value>10</ows:Value>
+            <ows:Value>11</ows:Value>
+            <ows:Value>12</ows:Value>
+            <ows:Value>14</ows:Value>
+          </ows:AllowedValues>
+        </LiteralData>
+      </Input>
+      <Input minOccurs="1" maxOccurs="1">
+        <ows:Identifier>heatMapMin</ows:Identifier>
+        <ows:Title>Minimum Heat Map Value</ows:Title>
+        <ows:Abstract>Value that represents the minimum heatmap color</ows:Abstract>
+        <LiteralData>
+          <ows:DataType ows:reference="xs:double"/>
+          <ows:AnyValue/>
+        </LiteralData>
+      </Input>
+      <Input minOccurs="1" maxOccurs="1">
+        <ows:Identifier>heatMapMax</ows:Identifier>
+        <ows:Title>Maximum Heat Map Value</ows:Title>
+        <ows:Abstract>Value that represents the maximum heatmap color</ows:Abstract>
+        <LiteralData>
+          <ows:DataType ows:reference="xs:double"/>
+          <ows:AnyValue/>
+        </LiteralData>
+      </Input>
+    </DataInputs>
+    <ProcessOutputs>
+      <Output>
+        <ows:Identifier>results</ows:Identifier>
+        <ows:Title>Raw Results</ows:Title>
+        <ComplexOutput>
+          <Default>
+            <Format>
+              <MimeType>text/csv</MimeType>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>text/csv</MimeType>
+            </Format>
+          </Supported>
+        </ComplexOutput>
+      </Output>
+      <Output>
+        <ows:Identifier>results_wtr</ows:Identifier>
+        <ows:Title>Raw Results</ows:Title>
+        <ComplexOutput>
+          <Default>
+            <Format>
+              <MimeType>text/csv</MimeType>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>text/csv</MimeType>
+            </Format>
+          </Supported>
+        </ComplexOutput>
+      </Output>
+      <Output>
+        <ows:Identifier>N2</ows:Identifier>
+        <ows:Title>Buoyancy frequency</ows:Title>
+        <ComplexOutput>
+          <Default>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Supported>
+        </ComplexOutput>
+      </Output>
+      <Output>
+        <ows:Identifier>SN2</ows:Identifier>
+        <ows:Title>Parent buoyancy frequency</ows:Title>
+        <ComplexOutput>
+          <Default>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Supported>
+        </ComplexOutput>
+      </Output>
+      <Output>
+        <ows:Identifier>Ln</ows:Identifier>
+        <ows:Title>Lake number</ows:Title>
+        <ComplexOutput>
+          <Default>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Supported>
+        </ComplexOutput>
+      </Output>
+      <Output>
+        <ows:Identifier>SLn</ows:Identifier>
+        <ows:Title>Parent lake number</ows:Title>
+        <ComplexOutput>
+          <Default>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Supported>
+        </ComplexOutput>
+      </Output>
+      <Output>
+        <ows:Identifier>metaB</ows:Identifier>
+        <ows:Title>Metalimnion bottom depth</ows:Title>
+        <ComplexOutput>
+          <Default>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Supported>
+        </ComplexOutput>
+      </Output>
+      <Output>
+        <ows:Identifier>SmetaB</ows:Identifier>
+        <ows:Title>Parent metalimnion bottom depth</ows:Title>
+        <ComplexOutput>
+          <Default>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Supported>
+        </ComplexOutput>
+      </Output>
+      <Output>
+        <ows:Identifier>metaT</ows:Identifier>
+        <ows:Title>Metalimnion top depth</ows:Title>
+        <ComplexOutput>
+          <Default>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Supported>
+        </ComplexOutput>
+      </Output>
+      <Output>
+        <ows:Identifier>SmetaT</ows:Identifier>
+        <ows:Title>Parent metalimnion top depth</ows:Title>
+        <ComplexOutput>
+          <Default>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Supported>
+        </ComplexOutput>
+      </Output>
+      <Output>
+        <ows:Identifier>T1</ows:Identifier>
+        <ows:Title>Mode one vertical seiche period</ows:Title>
+        <ComplexOutput>
+          <Default>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Supported>
+        </ComplexOutput>
+      </Output>
+      <Output>
+        <ows:Identifier>ST1</ows:Identifier>
+        <ows:Title>Parent mode one vertical seiche period</ows:Title>
+        <ComplexOutput>
+          <Default>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Supported>
+        </ComplexOutput>
+      </Output>
+      <Output>
+        <ows:Identifier>St</ows:Identifier>
+        <ows:Title>Schmidt stability</ows:Title>
+        <ComplexOutput>
+          <Default>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Supported>
+        </ComplexOutput>
+      </Output>
+      <Output>
+        <ows:Identifier>thermD</ows:Identifier>
+        <ows:Title>Thermocline depth</ows:Title>
+        <ComplexOutput>
+          <Default>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Supported>
+        </ComplexOutput>
+      </Output>
+      <Output>
+        <ows:Identifier>SthermD</ows:Identifier>
+        <ows:Title>Parent thermocline depth</ows:Title>
+        <ComplexOutput>
+          <Default>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Supported>
+        </ComplexOutput>
+      </Output>
+      <Output>
+        <ows:Identifier>uSt</ows:Identifier>
+        <ows:Title>u star (turblent velocity scale from wind)</ows:Title>
+        <ComplexOutput>
+          <Default>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Supported>
+        </ComplexOutput>
+      </Output>
+      <Output>
+        <ows:Identifier>SuSt</ows:Identifier>
+        <ows:Title>Parent u star (turblent velocity scale from wind)</ows:Title>
+        <ComplexOutput>
+          <Default>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Supported>
+        </ComplexOutput>
+      </Output>
+      <Output>
+        <ows:Identifier>wTemp</ows:Identifier>
+        <ows:Title>Water temperature</ows:Title>
+        <ComplexOutput>
+          <Default>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Supported>
+        </ComplexOutput>
+      </Output>
+      <Output>
+        <ows:Identifier>W</ows:Identifier>
+        <ows:Title>Wedderburn number</ows:Title>
+        <ComplexOutput>
+          <Default>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Supported>
+        </ComplexOutput>
+      </Output>
+      <Output>
+        <ows:Identifier>SW</ows:Identifier>
+        <ows:Title>Parent Wedderburn number</ows:Title>
+        <ComplexOutput>
+          <Default>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Supported>
+        </ComplexOutput>
+      </Output>
+      <Output>
+        <ows:Identifier>wndSpd</ows:Identifier>
+        <ows:Title>Wind speed</ows:Title>
+        <ComplexOutput>
+          <Default>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>image/png</MimeType>
+              <Encoding>Base64</Encoding>
+            </Format>
+          </Supported>
+        </ComplexOutput>
+      </Output>
+    </ProcessOutputs>
+  </ProcessDescription>
+</wps:ProcessDescriptions>
