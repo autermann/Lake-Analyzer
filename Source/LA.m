@@ -13,8 +13,8 @@ function LA(outPuts,...
             pltMods, ...
             plotYes, ...
             writeYes)
-        
-        
+
+
       %% -- variables --
 matSec = 86400;         % number of seconds in a day
 smplTs = 50;            % samplerate test length
@@ -28,7 +28,7 @@ end
 %% -- end variables --
 
 if ~any([plotYes writeYes])
-    
+
     error(['User must specify either to write results,'...
         ' plot results, or both ....... (see lke file)'])
 
@@ -68,7 +68,7 @@ if TT.openWtr
     for i = 1:numDepths
         tempStr = char(wtrHead{1}(i+1));
         tempLen = length(tempStr);
-        depthAry(i) = str2double(tempStr((5:tempLen))); 
+        depthAry(i) = str2double(tempStr((5:tempLen)));
     end
     if any(isnan(depthAry))
         error(['water temperature headers are not in the right format'...
@@ -79,7 +79,7 @@ end
 if TT.openWtr
     % check for salinity file
     defHead = 'salinity';
-    
+
     if isfield(inFileNames, 'salFileName')
         fprintf(['Checking for ' inFileNames.salFileName ' file*'])
         oper = fopen(inFileNames.salFileName);
@@ -122,11 +122,11 @@ if TT.openWnd
         error([inFileNames.bthFileName ' file not found']);
     end
     fclose all;
-    
+
     [wndD,wnd] = gFileOpen(inFileNames.wndFileName);
     wndLength = length(wndD);
     fprintf('...completed\n\n') ;
-end   
+end
 if TT.openBth
     fprintf(['Reading ' inFileNames.bthFileName ' file'])
     oper = fopen(inFileNames.bthFileName);
@@ -180,7 +180,7 @@ if TT.openWtr
     else
         tLen = smplTs;
     end
-    
+
     steps = NaN(1,tLen-1);
     for i = 1:tLen-1
         steps(i) = wtrD(i+1)-wtrD(i);
@@ -191,7 +191,7 @@ else
     else
         tLen = smplTs;
     end
-    
+
     steps = NaN(1,tLen-1);
     for i = 1:tLen-1
         steps(i) = wndD(i+1)-wndD(i);
@@ -222,7 +222,7 @@ if TT.errCkWtr
                 wtr(outInd,i) = mean(wtr(goodInd,i));
             end
         end
-    end   
+    end
 end
 if TT.errCkWnd %make sure this is only true when useWnd is true
     indLow = find(wnd<wndMn);
@@ -235,7 +235,7 @@ if TT.errCkWnd %make sure this is only true when useWnd is true
         if outInd > 0
             wnd(outInd) = mean(wnd(goodInd));
         end
-    end 
+    end
     clear goodInd outInd
 end
 
@@ -266,10 +266,10 @@ if TT.dwnSmple
 
         %at this point, use wind averaging
         %wind averaging will always be used (if not needed, specify a
-        %window that is smaller than the downsampled resolution 
+        %window that is smaller than the downsampled resolution
         %(i.e. outRs > wndAv)
         % *** this is backwards looking averging ***
-        
+
         wndAv = ceil(wndAv/outRs);
         Awnd = NaN(wndLength,1);
         if isempty(wnd)
@@ -280,9 +280,9 @@ if TT.dwnSmple
             Awnd(j) = mean(wnd(1:j));
         end
         for j = wndAv+1:wndLength
-            Awnd(j) = mean(wnd(j-wndAv:j)); 
+            Awnd(j) = mean(wnd(j-wndAv:j));
         end
-        wnd = Awnd; 
+        wnd = Awnd;
         clear wndLength
     end
     if TT.openWtr
@@ -312,7 +312,7 @@ if TT.useSal
             ' measurement to ' num2str(thmMn) 'm\n']);
         sal = [sal(:,1) sal];
         salDepths = [thmMn salDepths];
-        
+
     end
     if gt(thmMx,salMx)      % if the thermistors extend deeper than sal
         fprintf(['Extending ' num2str(salDepths(end)) 'm'...
@@ -339,12 +339,12 @@ if TT.useSal
     end
    % baseSal = sal;
    % sal = wtr*NaN;
-    
+
     fprintf('\nInterpolating salinity to match thermistors\n\n')
     % first in Z direction:
     sal = interp1(salDepths',sal',depthAry)';   % interpolated in depth
     sal = interp1(salD,sal,wtrD);               % interpolated in time;
-    
+
 else
     sal = wtr*0;    % if salinity is not to be used, assumed zero
 end
@@ -367,16 +367,16 @@ if TT.findLyr
         wtrT = wtr(j,:);
         % test shallowest depth with deepest depth (exclude NaNs)
         wtrT = wtrT(~isnan(wtrT));
-        
+
         if ~isempty(wtrT) && abs(wtrT(1)-wtrT(end)) > Tdiff % not mixed... % GIVES mixed if NaN!!!!
             % remove NaNs, need at least 3 values
-                rhoT = rho(j,:); 
+                rhoT = rho(j,:);
                 depT = depthAry; depT(isnan(rhoT)) = [];
                 rhoT(isnan(rhoT)) = [];
-                
+
             if TT.ssnLyr
                 if length(depT)>2
-                    
+
                     [thermoD(j),thermoInd(j),drho_dz,SthermoD(j),SthermoInd(j)] = ...
                         FindThermoDepth( rhoT,depT,Smin );
                 	metaT(j)  = FindMetaTop(drho_dz,thermoD(j),depT,drhDz);
@@ -397,7 +397,7 @@ if TT.findLyr
             mixed(j) = 1;
         end
     end
-    
+
     %layer averaging ***
     lyrAv = ceil(lyrAv/outRs);
     if TT.ssnLyr
@@ -427,7 +427,7 @@ if TT.findLyr
             AsMetaB(j) = mean(SmetaB(j-lyrAv+1:j));
             AsMetaT(j) = mean(SmetaT(j-lyrAv+1:j));
             AsThermoD(j) = mean(SthermoD(j-lyrAv+1:j));
-        end        
+        end
     end
     if TT.ssnLyr
         SmetaB = AsMetaB;
@@ -435,12 +435,12 @@ if TT.findLyr
         SthermoD = AsThermoD;
         clear AsThermoD AsMetaT AsMetaB
     end
-    
+
     metaB   = AvMetaB;
     metaT   = AvMetaT;
     thermoD = AvThermoD;
     clear AvMetaB AvMetaT AvThermoD
-    
+
     fprintf('...completed\n\n');
 end
 %% make sure wind and temp dates match
@@ -519,7 +519,7 @@ if TT.findLyr
         end
         % --- check thermoInd here --- incomplete
     end
-        
+
 end
 if TT.ssnLyr
     SmetaB = SmetaB(wtrMI);
@@ -557,11 +557,11 @@ if TT.StYes
     for j = 1:varL
         wtrT = wtr(j,:);
         salT = sal(j,:);
-        depT = depthAry; 
+        depT = depthAry;
         depT(isnan(wtrT)) = [];
         salT(isnan(wtrT)) = [];
         wtrT(isnan(wtrT)) = [];
-            
+
         if length(wtrT) > 2
             if TT.useLvl
                 St(j) = schmidtStability(wtrT,depT,bthA,bthD(j,:),salT);
@@ -594,7 +594,7 @@ if TT.uStYes
                     bthA,bthD(j,:),salT);
             else
                 AvEp_rho = layerDensity(minDepth,metaT(j),wtrT,depT,...
-                    bthA,bthD,salT); 
+                    bthA,bthD,salT);
             end
             uSt(j) = uStar(wnd(j),wndH,AvEp_rho);
         end % else, keep as NaN
@@ -604,7 +604,7 @@ if TT.uStYes
     end
     fprintf('...completed\n\n');
 end
-    
+
 %% *** lake number ***
 if TT.wrt_Ln
     fprintf('Calculating Lake Number');
@@ -630,7 +630,7 @@ if TT.wrt_Ln
                 LN(j) = lakeNumber(bthA,bthD,uSt(j),...
                     St(j),metaT(j),metaB(j),AvHyp_rho);
             end
-            
+
         end
     end
     writeTable.Ln = LN;
@@ -674,7 +674,7 @@ if TT.wrt_W
                 W(j) = wedderburnNumber(del_rho,metaT(j),uSt(j),Ao,...
                     AvHyp_rho);
             end
-            
+
         end
     end
     writeTable.W = W;
@@ -736,7 +736,7 @@ if TT.SuStYes
                 AvEp_rho = layerDensity(minDepth,SmetaT(j),wtrT,depT,...
                     bthA,bthD,salT);
             end
-            
+
             SuSt(j) = uStar(wnd(j),wndH,AvEp_rho);
         end % else, keep as NaN
     end
@@ -771,7 +771,7 @@ if TT.wrt_SLn
                 SLN(j) = lakeNumber(bthA,bthD,SuSt(j),...
                     St(j),SmetaT(j),SmetaB(j),AvHyp_rho);
             end
-            
+
         end
     end
     writeTable.SLn = SLN;
@@ -809,8 +809,8 @@ if TT.wrt_SW
                 AvHyp_rho = layerDensity(SmetaB(j),Zm,wtrT,depT,...
                     bthA,bthD,salT);
             end
-            
-            
+
+
             del_rho = AvHyp_rho-AvEp_rho;
             SW(j) = wedderburnNumber(del_rho,SmetaT(j),SuSt(j),Ao,...
                 AvHyp_rho);
@@ -852,7 +852,7 @@ if TT.wrt_SN2
     fprintf('...completed\n\n');
 end
 
-%% *** mode 1 vertical seiche 
+%% *** mode 1 vertical seiche
 if TT.wrt_T1
     fprintf('Calculating T1');
     g = 9.81; %m/s2
@@ -881,7 +881,7 @@ if TT.wrt_T1
             AvHyp_rho = layerDensity(thermoD(j),Zm,wtrT,depT,...
                 bthA,bthD,salT);
         end
-        
+
         delta_rho = AvHyp_rho-AvEpi_rho;
         go = g*delta_rho/AvHyp_rho;
         if lt(abs(wtr(j,1)-wtr(j,numDepths)),Tdiff)
@@ -897,7 +897,7 @@ if TT.wrt_T1
     fprintf('...completed\n\n');
 end
 
-%% *** Seasonal mode 1 vertical seiche 
+%% *** Seasonal mode 1 vertical seiche
 if TT.wrt_ST1
     fprintf('Calculating Parent T1');
     g = 9.81; %m/s2
@@ -926,7 +926,7 @@ if TT.wrt_ST1
             AvHyp_rho = layerDensity(SthermoD(j),Zm,wtrT,depT,...
                 bthA,bthD,salT);
         end
-        
+
         delta_rho = AvHyp_rho-AvEpi_rho;
         go = g*delta_rho/AvHyp_rho;
         if lt(abs(wtr(j,1)-wtr(j,numDepths)),Tdiff)
@@ -979,17 +979,17 @@ if writeYes && ~isempty(writeNames)
     if eq(outFile,-1)
         error([outFileNames.results ' file in use, please close']);
     end
-    wrt = @(writer)fprintf(outFile,writer); % build a subfunction that writes 
-                                    % the contents of the input "writer" 
+    wrt = @(writer)fprintf(outFile,writer); % build a subfunction that writes
+                                    % the contents of the input "writer"
                                     % to the file everytime wrt is called
     wrt('DateTime');
     for i = 1:cnt-1
         wrt([delimO writeNames{i}]);
     end
-    
+
     wrt('\r\n');
     for j = 1:varL
-        wrt(datestr(dates(j),dateOutput)); %change 'dateOutput' 
+        wrt(datestr(dates(j),dateOutput)); %change 'dateOutput'
                                     % in the 'OutputConstructor.m' file
         for i = 1:length(writeNames)
             wrt([delimO num2str(writeTable.(char(writeNames{i}))(j))]);
