@@ -210,9 +210,9 @@ clear vals ind numMx numCont steps tLen
 if (outRs - matRs)>dateTl
     TT.dwnSmple = true;   %down sample if necessary
 end
-
-outWn = ceil(outWn/matRs); % *** find down sample window ***
-
+if ~isempty(matRs)
+    outWn = ceil(outWn/matRs); % *** find down sample window ***
+end
 
 % *** error checking *** // this is slow...NEED TO CHECK END OF FILE TOO...
 if TT.errCkWtr
@@ -491,7 +491,9 @@ if TT.useLvl
             ' errant level measurements\n']);
     end
     fprintf('\nInterpolating level to match thermistors\n\n')
+    if size(lvl)>1
     lvl = interp1(lvlD,lvl,dates);
+    end
     lvl  = repmat(lvl,1,length(bthD));
     bthD = repmat(bthD,varL,1);
     bthD = bthD-lvl;    % now bthD is a time series, bthA stays relative to initial measurements
