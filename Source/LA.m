@@ -141,34 +141,38 @@ if TT.openBth
     clear bathArray
     fprintf('...completed\n\n') ;
     % check for .lvl file here...
-    fprintf(['Checking for ' inFileNames.lvlFileName ' file*'])
-    oper = fopen(inFileNames.lvlFileName);
-    if eq(oper,-1)
-        TT.useLvl = false;      % level not used if file does exist
-        fprintf('...not found [*is optional]\n\n')
-    else
-        fprintf('...file found')
-        fprintf('\nLake level file will be used for all hypsographically relevant functions\n')
-        fprintf(['\nLake level is based on 0 depth of the *.bth file, '...
-            '\nwith positive z in the downward direction.\n\n'])
-        TT.useLvl = true;
-        fclose all;
-        [lvlD,lvl] = gFileOpen(inFileNames.lvlFileName);
-        if any(lt(lvl,min(bthD)))   % test for values that are above the bth min
-            dateOver = lvlD(lt(lvl,min(bthD)));
-            error([inFileNames.lvlFileName ' file contains values above the maximum '...
-                'elevation of the *.bth file (i.e. values above ' ...
-                num2str(min(bthD)) ...
-                ') for reference, the first observation above the maximum *.bth '...
-                'data occurred on ' datestr(dateOver(1),'yyyy-mm-dd')]);
-        elseif any(ge(lvl,max(bthD)))   % test for values that are below the bth min
-            dateOver = lvlD(ge(lvl,max(bthD)));
-            error([inFileNames.lvlFileName ' file contains values below the minimum '...
-                'elevation of the *.bth file (i.e. values below ' ...
-                num2str(max(bthD)) ...
-                ') for reference, the first observation below the minimum *.bth '...
-                'data occurred on ' datestr(dateOver(1),'yyyy-mm-dd')]);
+    if isfield(inFileNames, 'lvlFileName')
+        fprintf(['Checking for ' inFileNames.lvlFileName ' file*'])
+        oper = fopen(inFileNames.lvlFileName);
+        if eq(oper,-1)
+            TT.useLvl = false;      % level not used if file does exist
+            fprintf('...not found [*is optional]\n\n')
+        else
+            fprintf('...file found')
+            fprintf('\nLake level file will be used for all hypsographically relevant functions\n')
+            fprintf(['\nLake level is based on 0 depth of the *.bth file, '...
+                '\nwith positive z in the downward direction.\n\n'])
+            TT.useLvl = true;
+            fclose all;
+            [lvlD,lvl] = gFileOpen(inFileNames.lvlFileName);
+            if any(lt(lvl,min(bthD)))   % test for values that are above the bth min
+                dateOver = lvlD(lt(lvl,min(bthD)));
+                error([inFileNames.lvlFileName ' file contains values above the maximum '...
+                    'elevation of the *.bth file (i.e. values above ' ...
+                    num2str(min(bthD)) ...
+                    ') for reference, the first observation above the maximum *.bth '...
+                    'data occurred on ' datestr(dateOver(1),'yyyy-mm-dd')]);
+            elseif any(ge(lvl,max(bthD)))   % test for values that are below the bth min
+                dateOver = lvlD(ge(lvl,max(bthD)));
+                error([inFileNames.lvlFileName ' file contains values below the minimum '...
+                    'elevation of the *.bth file (i.e. values below ' ...
+                    num2str(max(bthD)) ...
+                    ') for reference, the first observation below the minimum *.bth '...
+                    'data occurred on ' datestr(dateOver(1),'yyyy-mm-dd')]);
+            end
         end
+    else
+        TT.useLvl = false;
     end
 end
 
